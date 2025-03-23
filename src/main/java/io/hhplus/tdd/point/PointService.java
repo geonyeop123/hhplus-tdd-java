@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static io.hhplus.tdd.point.TransactionType.CHARGE;
+
 @Service
 @RequiredArgsConstructor
 public class PointService {
@@ -21,6 +23,17 @@ public class PointService {
 
     public List<PointHistory> selectPointHistoriesById(Long id) {
         return pointHistoryTable.selectAllByUserId(id);
+    }
+
+    public UserPoint chargePoint(Long id, Long amount) {
+        long now = System.currentTimeMillis();
+
+        UserPoint userPoint = userPointTable.selectById(id);
+
+        UserPoint chargeUserPoint = userPoint.chargePoint(amount);
+        pointHistoryTable.insert(id, amount, CHARGE, now);
+
+        return userPointTable.insertOrUpdate(id, chargeUserPoint.point());
     }
 
 }

@@ -1,14 +1,12 @@
 package io.hhplus.tdd.database;
 
 import io.hhplus.tdd.point.UserPoint;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class UserPointTableTest {
 
@@ -73,6 +71,32 @@ class UserPointTableTest {
         assertThat(userPoint).isNotNull();
         assertThat(userPoint.id()).isEqualTo(1L);
         assertThat(userPoint.point()).isEqualTo(0);
+    }
+
+    @DisplayName("포인트를 충전할 수 있다.")
+    @Test
+    void chargePoint() {
+        // given
+        UserPoint userPoint = UserPoint.empty(1L);
+
+        // when
+        UserPoint chargePoint = userPoint.chargePoint(10L);
+
+        // then
+        assertThat(chargePoint.point()).isEqualTo(10L);
+
+    }
+
+    @DisplayName("1포인트 이상만 충전할 수 있다.")
+    @Test
+    void ZeroPointNotCharge() {
+        // given
+        UserPoint userPoint = UserPoint.empty(1L);
+
+        // when // then
+        assertThatThrownBy(() -> userPoint.chargePoint(0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("1포인트 이상부터 충전이 가능합니다.");
     }
 
 }

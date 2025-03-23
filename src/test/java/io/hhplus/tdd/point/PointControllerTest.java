@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -13,6 +14,7 @@ import java.util.List;
 
 import static io.hhplus.tdd.point.TransactionType.CHARGE;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -48,7 +50,7 @@ class PointControllerTest {
                 ;
     }
 
-    @DisplayName("userId를 받아 포인트를 조회할 수 있다.")
+    @DisplayName("userId를 받아 포인트 충전, 사용 이력을 조회할 수 있다.")
     @Test
     void findPointHistories() throws Exception {
         // given
@@ -67,6 +69,29 @@ class PointControllerTest {
                 .andExpect(jsonPath("$[0].amount").value(10))
                 .andExpect(jsonPath("$[0].type").value("CHARGE"))
                 .andExpect(jsonPath("$[0].updateMillis").value(updateMillis))
+        ;
+    }
+
+    @DisplayName("포인트를 충전할 수 있다.")
+    @Test
+    void chargePoint() throws Exception {
+        // given
+        long id = 1L;
+        long updateMillis = System.currentTimeMillis();
+        long chargePoint = 10L;
+        UserPoint result = new UserPoint(id, 10L, updateMillis);
+        when(pointService.chargePoint(anyLong(), anyLong())).thenReturn(result);
+
+        // when // then
+        mockMvc.perform(MockMvcRequestBuilders.patch("/point/{id}/charge", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(chargePoint))
+                        )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.point").value(chargePoint))
+                .andExpect(jsonPath("$.updateMillis").value(updateMillis))
         ;
     }
 

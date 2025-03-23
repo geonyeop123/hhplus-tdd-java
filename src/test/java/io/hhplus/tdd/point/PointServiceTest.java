@@ -16,6 +16,7 @@ import static io.hhplus.tdd.point.TransactionType.USE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -82,5 +83,25 @@ class PointServiceTest {
         // then
         assertThat(pointHistories).isEmpty();
 
+    }
+
+    @DisplayName("포인트를 충전할 수 있다.")
+    @Test
+    void chargePoint() {
+        // given
+        long updateMillis = System.currentTimeMillis();
+        UserPoint emptyPoint = UserPoint.empty(1);
+        UserPoint result = new UserPoint(1, 10, updateMillis);
+
+        when(userPointTable.selectById(anyLong())).thenReturn(emptyPoint);
+        when(userPointTable.insertOrUpdate(anyLong(), anyLong())).thenReturn(result);
+
+        // when
+        UserPoint userPoint = pointService.chargePoint(1L, 10L);
+
+        // then
+        assertThat(userPoint.id()).isEqualTo(1L);
+        assertThat(userPoint.point()).isEqualTo(10L);
+        assertThat(userPoint.updateMillis()).isEqualTo(updateMillis);
     }
 }

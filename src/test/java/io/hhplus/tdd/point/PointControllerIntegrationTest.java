@@ -1,11 +1,13 @@
 package io.hhplus.tdd.point;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.hhplus.tdd.database.PointHistoryTable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -20,6 +22,9 @@ class PointControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private PointHistoryTable pointHistoryTable;
@@ -40,7 +45,7 @@ class PointControllerIntegrationTest {
         ;
     }
 
-    @DisplayName("포인트를 조회할 수 있다.")
+    @DisplayName("포인트 충전/사용 이력을 조회할 수 있다.")
     @Test
     void findPointHistories() throws Exception {
         // given
@@ -59,6 +64,25 @@ class PointControllerIntegrationTest {
                 .andExpect(jsonPath("$[0].amount").value(10))
                 .andExpect(jsonPath("$[0].type").value("CHARGE"))
                 .andExpect(jsonPath("$[0].updateMillis").value(updateMillis))
+        ;
+    }
+
+    @DisplayName("포인트를 충전할 수 있다.")
+    @Test
+    void chargePoint() throws Exception {
+        // given
+        long id = 1L;
+        long chargePoint = 10L;
+
+        // when // then
+        mockMvc.perform(MockMvcRequestBuilders.patch("/point/{id}/charge", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(chargePoint))
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.point").value(chargePoint))
         ;
     }
 }
