@@ -2,16 +2,13 @@ package io.hhplus.tdd.database;
 
 import io.hhplus.tdd.point.PointHistory;
 import io.hhplus.tdd.point.TransactionType;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class PointHistoryTableTest {
 
@@ -56,6 +53,16 @@ class PointHistoryTableTest {
         PointHistory pointHistory = pointHistories.get(0);
         assertThat(pointHistory.userId()).isEqualTo(1L);
         assertThat(pointHistory.amount()).isEqualTo(10);
+    }
+
+    @DisplayName("userId에 해당하는 모든 이력을 조회했을 때 데이터가 없는 경우 빈 목록이 조회된다.")
+    @Test
+    void selectAllByUserIdIsEmpty() {
+        // given // when
+        List<PointHistory> pointHistories = pointHistoryTable.selectAllByUserId(1L);
+
+        // then
+        assertThat(pointHistories).isEmpty();
     }
 
 }

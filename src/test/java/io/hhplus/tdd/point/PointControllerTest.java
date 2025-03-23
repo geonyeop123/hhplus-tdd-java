@@ -9,6 +9,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.List;
+
+import static io.hhplus.tdd.point.TransactionType.CHARGE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -43,6 +46,28 @@ class PointControllerTest {
                 .andExpect(jsonPath("$.point").value(10))
                 .andExpect(jsonPath("$.updateMillis").value(updateMillis))
                 ;
+    }
+
+    @DisplayName("userId를 받아 포인트를 조회할 수 있다.")
+    @Test
+    void findPointHistories() throws Exception {
+        // given
+        long id = 1L;
+        long updateMillis = System.currentTimeMillis();
+        List<PointHistory> result = List.of(new PointHistory(1L, 1L, 10, CHARGE, updateMillis));
+        when(pointService.selectPointHistoriesById(any())).thenReturn(result);
+
+        // when // then
+        mockMvc.perform(MockMvcRequestBuilders.get("/point/{id}/histories", id))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].userId").value(1))
+                .andExpect(jsonPath("$[0].amount").value(10))
+                .andExpect(jsonPath("$[0].type").value("CHARGE"))
+                .andExpect(jsonPath("$[0].updateMillis").value(updateMillis))
+        ;
     }
 
 }
