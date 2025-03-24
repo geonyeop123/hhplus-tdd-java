@@ -85,4 +85,23 @@ class PointControllerIntegrationTest {
                 .andExpect(jsonPath("$.point").value(chargePoint))
         ;
     }
+
+    @DisplayName("1포인트 이하는 충전할 수 없다.")
+    @Test
+    void chargeZeroPoint() throws Exception {
+        // given
+        long id = 1L;
+        long chargePoint = 0L;
+
+        // when // then
+        mockMvc.perform(MockMvcRequestBuilders.patch("/point/{id}/charge", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(chargePoint))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("1포인트 이상부터 충전이 가능합니다."))
+        ;
+    }
 }

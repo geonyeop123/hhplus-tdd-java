@@ -1,5 +1,7 @@
 package io.hhplus.tdd.point;
 
+import static io.hhplus.tdd.point.validation.PointValidationRule.CHARGE;
+
 public record UserPoint(
         long id,
         long point,
@@ -7,9 +9,12 @@ public record UserPoint(
 ) {
 
     public UserPoint chargePoint(long amount){
-        if(amount <= 0) {
-            throw new IllegalArgumentException("1포인트 이상부터 충전이 가능합니다.");
-        };
+
+        if(CHARGE.getMin() > amount) {
+            throw new IllegalArgumentException(String.format("%d포인트 이상부터 충전이 가능합니다.", CHARGE.getMin()));
+        }else if(CHARGE.getMax() < this.point + amount) {
+            throw new IllegalArgumentException(String.format("잔고는 %d원을 초과할 수 없습니다.", CHARGE.getMax()));
+        }
 
         return new UserPoint(this.id, this.point + amount, System.currentTimeMillis());
     }
