@@ -22,12 +22,12 @@ class UserPointTableTest {
     @Test
     void insertUserPoint() {
         // given // when
-        userPointTable.insertOrUpdate(1L, 40);
+        userPointTable.insertOrUpdate(1, 40);
 
         // then
         UserPoint userPoint = userPointTable.selectById(1L);
 
-        assertThat(userPoint.id()).isEqualTo(1L);
+        assertThat(userPoint.id()).isEqualTo(1);
         assertThat(userPoint.point()).isEqualTo(40);
     }
 
@@ -69,7 +69,7 @@ class UserPointTableTest {
 
         // then
         assertThat(userPoint).isNotNull();
-        assertThat(userPoint.id()).isEqualTo(1L);
+        assertThat(userPoint.id()).isEqualTo(1);
         assertThat(userPoint.point()).isEqualTo(0);
     }
 
@@ -77,13 +77,13 @@ class UserPointTableTest {
     @Test
     void chargePoint() {
         // given
-        UserPoint userPoint = UserPoint.empty(1L);
+        UserPoint userPoint = UserPoint.empty(1);
 
         // when
-        UserPoint chargePoint = userPoint.chargePoint(10L);
+        UserPoint chargePoint = userPoint.chargePoint(10);
 
         // then
-        assertThat(chargePoint.point()).isEqualTo(10L);
+        assertThat(chargePoint.point()).isEqualTo(10);
 
     }
 
@@ -91,7 +91,7 @@ class UserPointTableTest {
     @Test
     void ZeroPointNotCharge() {
         // given
-        UserPoint userPoint = UserPoint.empty(1L);
+        UserPoint userPoint = UserPoint.empty(1);
 
         // when // then
         assertThatThrownBy(() -> userPoint.chargePoint(0))
@@ -103,12 +103,37 @@ class UserPointTableTest {
     @Test
     void maxPointCharge() {
         // given
-        UserPoint userPoint = UserPoint.empty(1L);
+        UserPoint userPoint = UserPoint.empty(1);
 
         // when // then
-        assertThatThrownBy(() -> userPoint.chargePoint(100_000_001L))
+        assertThatThrownBy(() -> userPoint.chargePoint(100_000_001))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("잔고는 100000000원을 초과할 수 없습니다.");
+    }
+
+    @DisplayName("포인트를 사용할 수 있다.")
+    @Test
+    void usePoint() {
+        // given
+        UserPoint userPoint = new UserPoint(1, 100, System.currentTimeMillis());
+
+        // when
+        UserPoint usedPoint = userPoint.usePoint(50);
+
+        // then
+        assertThat(usedPoint.point()).isEqualTo(50);
+    }
+
+    @DisplayName("사용할 수 있는 포인트보다 많은 포인트는 사용할 수 없다.")
+    @Test
+    void usePointOverBalance() {
+        // given
+        UserPoint userPoint = new UserPoint(1, 100, System.currentTimeMillis());
+
+        // when // then
+        assertThatThrownBy(() -> userPoint.usePoint(150))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("잔고가 부족합니다.");
     }
 
 }

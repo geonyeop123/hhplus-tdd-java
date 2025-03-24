@@ -9,7 +9,6 @@ public record UserPoint(
 ) {
 
     public UserPoint chargePoint(long amount){
-
         if(CHARGE.getMin() > amount) {
             throw new IllegalArgumentException(String.format("%d포인트 이상부터 충전이 가능합니다.", CHARGE.getMin()));
         }else if(CHARGE.getMax() < this.point + amount) {
@@ -17,6 +16,16 @@ public record UserPoint(
         }
 
         return new UserPoint(this.id, this.point + amount, System.currentTimeMillis());
+    }
+
+    public UserPoint usePoint(long amount){
+        long balance = this.point - amount;
+
+        if(balance < 0) {
+            throw new IllegalArgumentException("잔고가 부족합니다.");
+        }
+
+        return new UserPoint(this.id, balance, System.currentTimeMillis());
     }
 
     public static UserPoint empty(long id) {

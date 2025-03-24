@@ -33,6 +33,9 @@ class PointControllerTest {
     @MockBean
     private PointService pointService;
 
+    @MockBean
+    private PointHistoryService pointHistoryService;
+
     @DisplayName("userId를 받아 포인트를 조회할 수 있다.")
     @Test
     void findPoint() throws Exception {
@@ -59,7 +62,7 @@ class PointControllerTest {
         long id = 1L;
         long updateMillis = System.currentTimeMillis();
         List<PointHistory> result = List.of(new PointHistory(1L, 1L, 10, CHARGE, updateMillis));
-        when(pointService.selectPointHistoriesById(any())).thenReturn(result);
+        when(pointHistoryService.selectPointHistoriesById(any())).thenReturn(result);
 
         // when // then
         mockMvc.perform(MockMvcRequestBuilders.get("/point/{id}/histories", id))
@@ -93,6 +96,29 @@ class PointControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id))
                 .andExpect(jsonPath("$.point").value(chargePoint))
+                .andExpect(jsonPath("$.updateMillis").value(updateMillis))
+        ;
+    }
+
+    @DisplayName("포인트를 사용할 수 있다.")
+    @Test
+    void usePoint() throws Exception {
+        // given
+        long id = 1L;
+        long updateMillis = System.currentTimeMillis();
+        long usePoint = 10L;
+        UserPoint result = new UserPoint(id, 0L, updateMillis);
+        when(pointService.usePoint(anyLong(), anyLong())).thenReturn(result);
+
+        // when // then
+        mockMvc.perform(MockMvcRequestBuilders.patch("/point/{id}/use", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(usePoint))
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.point").value(0))
                 .andExpect(jsonPath("$.updateMillis").value(updateMillis))
         ;
     }

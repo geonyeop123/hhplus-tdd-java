@@ -17,6 +17,7 @@ public class PointController {
 
     private static final Logger log = LoggerFactory.getLogger(PointController.class);
     private final PointService pointService;
+    private final PointHistoryService pointHistoryService;
 
 
     @GetMapping("{id}")
@@ -30,7 +31,7 @@ public class PointController {
     public ResponseEntity<List<PointHistory>> history(
             @PathVariable long id
     ) {
-        return ResponseEntity.ok(pointService.selectPointHistoriesById(id));
+        return ResponseEntity.ok(pointHistoryService.selectPointHistoriesById(id));
     }
 
     @PatchMapping("{id}/charge")
@@ -41,14 +42,11 @@ public class PointController {
         return ResponseEntity.ok(pointService.chargePoint(id, amount));
     }
 
-    /**
-     * TODO - 특정 유저의 포인트를 사용하는 기능을 작성해주세요.
-     */
     @PatchMapping("{id}/use")
-    public UserPoint use(
+    public ResponseEntity<UserPoint> use(
             @PathVariable long id,
             @RequestBody long amount
     ) {
-        return new UserPoint(0, 0, 0);
+        return ResponseEntity.ok(pointService.usePoint(id, amount));
     }
 }
