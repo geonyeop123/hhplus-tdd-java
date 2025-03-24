@@ -1,4 +1,4 @@
-package io.hhplus.tdd.point;
+package io.hhplus.tdd.point.domain;
 
 import static io.hhplus.tdd.point.validation.PointValidationRule.CHARGE;
 
