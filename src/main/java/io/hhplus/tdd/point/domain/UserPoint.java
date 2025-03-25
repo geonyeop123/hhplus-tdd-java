@@ -1,5 +1,7 @@
 package io.hhplus.tdd.point.domain;
 
+import java.text.NumberFormat;
+
 import static io.hhplus.tdd.point.validation.PointValidationRule.CHARGE;
 
 public record UserPoint(
@@ -9,13 +11,15 @@ public record UserPoint(
 ) {
 
     public UserPoint chargePoint(long amount){
+        long balance = this.point + amount;
         if(CHARGE.getMin() > amount) {
             throw new IllegalArgumentException(String.format("%d포인트 이상부터 충전이 가능합니다.", CHARGE.getMin()));
-        }else if(CHARGE.getMax() < this.point + amount) {
-            throw new IllegalArgumentException(String.format("잔고는 %d원을 초과할 수 없습니다.", CHARGE.getMax()));
+        }else if(CHARGE.getMax() < balance) {
+            NumberFormat nf = NumberFormat.getInstance();
+            throw new IllegalArgumentException(String.format("잔고는 %s원을 초과할 수 없습니다.", nf.format(CHARGE.getMax())));
         }
 
-        return new UserPoint(this.id, this.point + amount, System.currentTimeMillis());
+        return new UserPoint(this.id, balance, System.currentTimeMillis());
     }
 
     public UserPoint usePoint(long amount){

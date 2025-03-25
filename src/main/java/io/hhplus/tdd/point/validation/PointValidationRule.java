@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum PointValidationRule {
 
-    CHARGE(1L, 100_000_000L);
+    CHARGE(1L, 1_000_000L);
 
     private final long min;
     private final long max;

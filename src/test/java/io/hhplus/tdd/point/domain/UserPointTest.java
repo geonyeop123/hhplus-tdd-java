@@ -35,16 +35,16 @@ class UserPointTest {
                 .hasMessage("1포인트 이상부터 충전이 가능합니다.");
     }
 
-    @DisplayName("포인트 잔고는 1억을 넘을 수 없다.")
+    @DisplayName("포인트 잔고는 100만원을 넘을 수 없다.")
     @Test
     void maxPointCharge() {
         // given
         UserPoint userPoint = UserPoint.empty(1);
 
         // when // then
-        assertThatThrownBy(() -> userPoint.chargePoint(100_000_001))
+        assertThatThrownBy(() -> userPoint.chargePoint(1_000_001))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("잔고는 100000000원을 초과할 수 없습니다.");
+                .hasMessage("잔고는 1,000,000원을 초과할 수 없습니다.");
     }
 
     @DisplayName("포인트를 사용할 수 있다.")
