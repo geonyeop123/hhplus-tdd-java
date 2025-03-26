@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import static io.hhplus.tdd.point.domain.TransactionType.CHARGE;
+import static io.hhplus.tdd.point.domain.TransactionType.USE;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +25,16 @@ public class PointService {
         UserPoint userPoint = userPointTable.selectById(id);
         UserPoint chargedPoint = userPoint.charge(amount);
         pointHistoryService.insert(id, amount, CHARGE, updateMillis);
+
+        return userPointTable.insertOrUpdate(id, chargedPoint.point());
+    }
+
+    public UserPoint use(Long id, Long amount) {
+        long updateMillis = System.currentTimeMillis();
+
+        UserPoint userPoint = userPointTable.selectById(id);
+        UserPoint chargedPoint = userPoint.use(amount);
+        pointHistoryService.insert(id, amount, USE, updateMillis);
 
         return userPointTable.insertOrUpdate(id, chargedPoint.point());
     }

@@ -24,6 +24,21 @@ public record UserPoint(
             throw new IllegalArgumentException("잔고는 10,000원 이상을 넘을 수 없습니다.");
         }
 
-        return new UserPoint(id, amount, System.currentTimeMillis());
+        return new UserPoint(id, balance, System.currentTimeMillis());
+    }
+
+    public UserPoint use(Long amount) {
+
+        if(amount < 1){
+            throw new IllegalArgumentException("1원 이상부터 사용이 가능합니다.");
+        }
+
+        long balance = this.point - amount;
+
+        if(balance < 0){
+            throw new IllegalArgumentException("보유 포인트가 부족합니다.");
+        }
+
+        return new UserPoint(id, balance, System.currentTimeMillis());
     }
 }

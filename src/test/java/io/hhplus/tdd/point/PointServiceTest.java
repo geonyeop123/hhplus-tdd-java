@@ -97,4 +97,52 @@ class PointServiceTest {
         }
     }
 
+    @DisplayName("포인트 사용")
+    @Nested
+    class use {
+
+        @DisplayName("정상적인 id와 값으로 포인트를 사용하면 사용 이후 상태인 UserPoint 객체를 반환한다.")
+        @Test
+        void success() {
+            // given
+            Long id = 1L;
+            Long amount = 10L;
+            Long updateMillis = 1000L;
+            UserPoint beforeUseUserPoint = new UserPoint(id, amount, updateMillis);
+            UserPoint afterUseUserPoint = new UserPoint(id, 0L, updateMillis);
+
+
+            when(userPointTable.selectById(id)).thenReturn(beforeUseUserPoint);
+            when(userPointTable.insertOrUpdate(anyLong(), anyLong())).thenReturn(afterUseUserPoint);
+
+            // when
+            UserPoint point = pointService.use(id, amount);
+
+            // then
+            assertThat(point.id()).isEqualTo(id);
+            assertThat(point.point()).isEqualTo(0L);
+            assertThat(point.updateMillis()).isEqualTo(updateMillis);
+
+            verify(userPointTable, times(1)).selectById(id);
+            verify(userPointTable, times(1)).insertOrUpdate(anyLong(), anyLong());
+            verify(pointHistoryService, times(1))
+                    .insert(anyLong(), anyLong(), any(), anyLong());
+        }
+
+        @DisplayName("포인트 사용에 실패하면, 사용 이력 저장을 하지 않는다.")
+        @Test
+        void failNotWriteHistory() {
+            // given
+            Long id = 1L;
+            Long amount = 0L;
+            when(userPointTable.selectById(id)).thenReturn(UserPoint.empty(id));
+
+            // when // then
+            assertThatThrownBy(() -> pointService.use(id, amount)).isInstanceOf(IllegalArgumentException.class);
+
+            verify(userPointTable, times(1)).selectById(id);
+            verify(pointHistoryService, never()).insert(anyLong(), anyLong(), any(), anyLong());
+        }
+    }
+
 }
