@@ -1,5 +1,6 @@
 package io.hhplus.tdd.point;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.hhplus.tdd.point.domain.PointHistory;
 import io.hhplus.tdd.point.domain.TransactionType;
 import io.hhplus.tdd.point.domain.UserPoint;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -25,6 +27,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class PointControllerTest {
 
     @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
     private MockMvc mockMvc;
 
     @MockBean
@@ -33,7 +38,7 @@ class PointControllerTest {
     @MockBean
     private PointHistoryService pointHistoryService;
 
-    @DisplayName("포인트 조회")
+    @DisplayName("/point/{id} 포인트 조회")
     @Nested
     class findPoint{
 
@@ -70,7 +75,7 @@ class PointControllerTest {
         }
     }
 
-    @DisplayName("포인트 충전/이용 내역 조회")
+    @DisplayName("/point/{id}/histories 포인트 충전/이용 내역 조회")
     @Nested
     class findHistories {
 
@@ -104,6 +109,50 @@ class PointControllerTest {
 
             // when // then
             mockMvc.perform(MockMvcRequestBuilders.get("/point/{id}/histories", id))
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value(BAD_REQUEST.value()))
+                    .andExpect(jsonPath("$.message").value("id값은 1이상만 요청하실 수 있습니다."))
+            ;
+        }
+    }
+
+    @DisplayName("/point/{id}/charge 포인트 충전")
+    @Nested
+    class chargePoint {
+
+        @DisplayName("정상적인 요청으로 충전을 요청하면 해당 충전된 포인트 정보가 반환된다.")
+        @Test
+        void success() throws Exception {
+            // given
+            Long id = 1L;
+            Long amount = 10L;
+
+            when(pointService.charge(id, amount)).thenReturn(new UserPoint(id, amount, 1L));
+
+            // when // then
+            mockMvc.perform(MockMvcRequestBuilders.patch("/point/{id}/charge", id)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(amount)))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").value(id))
+                    .andExpect(jsonPath("$.updateMillis").isNotEmpty());
+        }
+
+        @DisplayName("요청한 id가 0이하인 경우 400에러가 발생한다.")
+        @Test
+        void fail() throws Exception {
+            // given
+            Long id = 0L;
+            Long amount = 10L;
+
+            when(pointService.charge(id, amount)).thenReturn(new UserPoint(id, amount, 1L));
+
+            // when // then
+            mockMvc.perform(MockMvcRequestBuilders.patch("/point/{id}/charge", id)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(amount)))
                     .andDo(print())
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.code").value(BAD_REQUEST.value()))
