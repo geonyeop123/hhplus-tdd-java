@@ -45,6 +45,21 @@ class PointControllerTest {
                     .andExpect(jsonPath("$.updateMillis").isNotEmpty());
         }
 
+        @DisplayName("요청한 id가 0이하인 경우 400에러가 반환된다.")
+        @Test
+        void fail() throws Exception {
+            // given
+            Long id = 0L;
+            when(pointService.findPoint(id)).thenReturn(UserPoint.empty(id));
+
+            // when // then
+            mockMvc.perform(MockMvcRequestBuilders.get("/point/{id}", id))
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value(BAD_REQUEST.value()))
+                    .andExpect(jsonPath("$.message").value("id값은 1이상만 요청하실 수 있습니다."))
+                    ;
+        }
     }
 
 }

@@ -24,6 +24,9 @@ public class PointController {
     public UserPoint point(
             @PathVariable long id
     ) {
+        if(id <= 0L){
+            throw new IllegalArgumentException("id값은 1이상만 요청하실 수 있습니다.");
+        }
         return pointService.findPoint(id);
     }
 
