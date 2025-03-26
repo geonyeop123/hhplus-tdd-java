@@ -19,6 +19,7 @@ public class PointController {
     private static final Logger log = LoggerFactory.getLogger(PointController.class);
 
     private final PointService pointService;
+    private final PointHistoryService pointHistoryService;
 
     @GetMapping("{id}")
     public UserPoint point(
@@ -30,14 +31,14 @@ public class PointController {
         return pointService.findPoint(id);
     }
 
-    /**
-     * TODO - 특정 유저의 포인트 충전/이용 내역을 조회하는 기능을 작성해주세요.
-     */
     @GetMapping("{id}/histories")
     public List<PointHistory> history(
             @PathVariable long id
     ) {
-        return List.of();
+        if(id <= 0L){
+            throw new IllegalArgumentException("id값은 1이상만 요청하실 수 있습니다.");
+        }
+        return pointHistoryService.findHistoriesById(id);
     }
 
     /**
