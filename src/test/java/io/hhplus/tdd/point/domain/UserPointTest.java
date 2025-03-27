@@ -6,7 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
+/*
+    기능이 포함된 도메인 객체로 단위 테스트를 작성하게 되었습니다.
+ */
 class UserPointTest {
 
     @DisplayName("empty 메서드를 호출하면 요청받은 id와 0 포인트를 가진 객체를 생성한다.")
@@ -23,11 +25,12 @@ class UserPointTest {
         assertThat(userPoint.point()).isEqualTo(0L);
     }
 
+    /* 충전 메서드의 단위 테스트를 작성하였습니다. */
     @DisplayName("충전")
     @Nested
     class charge {
 
-        @DisplayName("정상적인 충전 금액으로 충전하는 경우 충전된 포인트를 가진 객체를 반환한다.")
+        @DisplayName("정상적인 충전 금액으로 충전하는 경우 기존 포인트에 충전된 포인트가 더해진 객체를 반환한다.")
         @Test
         void success() {
             // given
@@ -42,6 +45,7 @@ class UserPointTest {
 
         }
 
+        /* 비즈니스 정책에 맞게 실패하는 케이스를 작성하였습니다. */
         @DisplayName("충전 이후 잔고가 10,000원 이상인 경우 IllegalArgumentException이 발생한다.")
         @Test
         void failOverCharge() {
@@ -56,7 +60,8 @@ class UserPointTest {
                     .hasMessage("잔고는 10,000원 이상을 넘을 수 없습니다.");
         }
 
-        @DisplayName("1원 이상부터 충전할 수 있다.")
+        /* 비즈니스 정책에 맞게 실패하는 케이스를 작성하였습니다. */
+        @DisplayName("충전하는 포인트가 최소 충전 포인트를 넘지 못하는 경우 IllegalArgumentException이 발생한다.")
         @Test
         void failDidntMinimumCharge() {
             // given
@@ -91,6 +96,7 @@ class UserPointTest {
 
         }
 
+        /* 비즈니스 정책에 맞게 실패하는 케이스를 작성하였습니다. */
         @DisplayName("사용 이후 잔고가 0원 미만인 경우 IllegalArgumentException이 발생한다.")
         @Test
         void failNotEnoughBalance() {
@@ -105,6 +111,7 @@ class UserPointTest {
                     .hasMessage("보유 포인트가 부족합니다.");
         }
 
+        /* 비즈니스 정책에 맞게 실패하는 케이스를 작성하였습니다. */
         @DisplayName("사용하는 포인트가 1원 미만인 경우 IllegalArgumentException이 발생한다.")
         @Test
         void failDidntMinimumPoint() {

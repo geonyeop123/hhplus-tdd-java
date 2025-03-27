@@ -21,7 +21,8 @@ import static org.assertj.core.groups.Tuple.tuple;
 
 @SpringBootTest
 class PointServiceIntegrationTest {
-// DB 대용으로 사용하고 있는 table 객체들의 삭제 메서드가 없어 각 테스트마다 id를 별도로 세팅하였습니다.
+/* DB 대용으로 사용하고 있는 table 객체들의 삭제 메서드가 없어
+    각 테스트마다 id를 별도로 세팅하였습니다. */
 
     @Autowired
     private PointService pointService;
@@ -32,6 +33,8 @@ class PointServiceIntegrationTest {
     @Autowired
     private UserPointTable userPointTable;
 
+    /* 조회에서 실패 케이스는 id가 0 이하인 경우 발생하지만,
+        controller에서 해당 검증을 진행하므로 성공 케이스만 작성하였습니다. */
     @DisplayName("포인트 조회")
     @Nested
     class findPoint {
@@ -51,6 +54,8 @@ class PointServiceIntegrationTest {
         }
     }
 
+    /* UserPoint 도메인 객체와 동일한 실패 케이스가 존재하지만, 통합 테스트에서의 TC는
+        해당 테스트 케이스도 포함되어야 생각하여 작성하였습니다. */
     @DisplayName("포인트 충전")
     @Nested
     class charge {
@@ -181,6 +186,7 @@ class PointServiceIntegrationTest {
         }
     }
 
+    /* 연속적인 데이터 흐름에서도 성공하는지 보기 위하여 해당 테스트를 작성하였습니다. */
     @DisplayName("충전 및 사용")
     @Nested
     class chargeAndUse {

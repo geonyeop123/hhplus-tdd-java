@@ -27,6 +27,9 @@ class PointServiceTest {
     @InjectMocks
     private PointService pointService;
 
+
+    /* 조회에서 실패 케이스는 id가 0 이하인 경우 발생하지만,
+    controller에서 해당 검증을 진행하므로 성공 케이스만 작성하였습니다. */
     @DisplayName("포인트 조회")
     @Nested
     class findPoint {
@@ -51,6 +54,8 @@ class PointServiceTest {
 
     }
 
+    /* 충전에 실패하는 경우는 UserPoint 도메인 내부에 로직이 담겨있어,
+       통합테스트에만 해당 실패 케이스를 작성하였습니다. */
     @DisplayName("포인트 충전")
     @Nested
     class charge {
@@ -97,6 +102,8 @@ class PointServiceTest {
         }
     }
 
+    /* 사용에 실패하는 경우는 UserPoint 도메인 내부에 로직이 담겨있어,
+        통합테스트에만 해당 실패 케이스를 작성하였습니다. */
     @DisplayName("포인트 사용")
     @Nested
     class use {

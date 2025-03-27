@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(PointController.class)
 class PointControllerTest {
-
+/* Controller 테스트의 경우에 응답 및 반환값에 대해서만 테스트를 진행하였습니다. */
     @Autowired
     private ObjectMapper objectMapper;
 
