@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import static io.hhplus.tdd.point.domain.validationRule.PointValidationRule.CHARGE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -193,7 +194,7 @@ class PointServiceIntegrationTest {
 
         @DisplayName("총 충전을 60원을 하고, 45원을 사용하면 15원이 남으며 모든 이력이 저장된다.")
         @Test
-        void chargeAndUse() {
+        void success() {
             // given
             Long id = 10L;
 
@@ -216,10 +217,53 @@ class PointServiceIntegrationTest {
                                         , tuple(id, 30L, TransactionType.CHARGE)
                                         , tuple(id, 45L, TransactionType.USE)
                                 );
-
-
         }
 
+    }
+
+    @DisplayName("동시성 제어 테스트")
+    @Nested
+    class concurrency {
+        @DisplayName("한 유저에 대한 여러 요청이 동시에 들어왔을 때 요청 순서대로 처리한다.")
+        @Test
+        void success() throws InterruptedException {
+            // given
+            Long id = 11L;
+            int threadCount = 10;
+            CountDownLatch latch = new CountDownLatch(threadCount);
+            // when
+            for (int i = 0; i < threadCount; i++) {
+                int number = i;
+                new Thread(() -> {
+                    if(number % 2 == 0){
+                        pointService.charge(id, 10L);
+                    }else{
+                        pointService.use(id, 10L);
+                    }
+                    latch.countDown();
+                }).start();
+            }
+
+            latch.await();
+
+            // then
+            UserPoint userPoint = userPointTable.selectById(id);
+            assertThat(userPoint.point()).isEqualTo(0L);
+            List<PointHistory> pointHistories = pointHistoryTable.selectAllByUserId(id);
+            assertThat(pointHistories).extracting("userId", "amount", "type")
+                    .containsExactly(
+                            tuple(id, 10L, TransactionType.CHARGE)
+                            , tuple(id, 10L, TransactionType.USE)
+                            , tuple(id, 10L, TransactionType.CHARGE)
+                            , tuple(id, 10L, TransactionType.USE)
+                            , tuple(id, 10L, TransactionType.CHARGE)
+                            , tuple(id, 10L, TransactionType.USE)
+                            , tuple(id, 10L, TransactionType.CHARGE)
+                            , tuple(id, 10L, TransactionType.USE)
+                            , tuple(id, 10L, TransactionType.CHARGE)
+                            , tuple(id, 10L, TransactionType.USE)
+                    );
+        }
     }
 
 }
